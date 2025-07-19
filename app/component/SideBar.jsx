@@ -1,43 +1,45 @@
-import React from 'react'
-import { FaCloudversify, FaHome, FaInfoCircle, FaPhone, FaServicestack, FaBlog } from "react-icons/fa";
-import './font.css'; // Make sure your custom font is imported here
+'use client';
+import Link from '@bradgarropy/next-link';
+import { usePathname } from 'next/navigation';
+import {
+  FaRoad, FaMoneyBill, FaSearch, FaChartLine,
+  FaUsers, FaLayerGroup, FaListUl , FaChalkboardTeacher, FaComment
+} from 'react-icons/fa';
 
-function SideBar() {
-    return (
-        <div className='flex'>
-            {/* Sidebar */}
-            <div className='flex flex-col items-start justify-start h-screen bg-teal-100 shadow-lg p-4 w-64 font-poppins'>
+const menu = [
+  { label: 'Home', path: '/', icon: <FaRoad /> },
+  { label: 'roadmap', path: '/roadmap', icon: <FaLayerGroup /> },
+  { label: 'Budget', path: '/budget', icon: <FaMoneyBill /> },
+  { label: 'Trending', path: '/trending-products', icon: <FaSearch /> },
+  { label: 'Competitor', path: '/competitor', icon: <FaChartLine /> },
+  { label: 'Profit', path: '/profit', icon: <FaChartLine /> },
+  { label: 'Vendors', path: '/vendors', icon: <FaUsers /> },
+  { label: 'Platform', path: '/platform', icon: <FaLayerGroup /> },
+  { label: 'Guide', path: '/guide', icon: <FaListUl  /> },
+  { label: 'Tutorials', path: '/tutorials', icon: <FaChalkboardTeacher /> },
+  { label: 'Mentor Chat', path: '/mentor-chat', icon: <FaComment /> },
+];
 
-                {/* Header */}
-                <div className='flex items-center justify-center p-2 rounded-lg mb-6'>
-                    <FaCloudversify className='text-5xl text-teal-700' />
-                    <h1 className='text-xl ms-2 font-bold text-teal-700 tracking-wide'>Ecommerce Guider</h1>
-                </div>
+export default function Sidebar() {
+  const pathname = usePathname();
 
-                {/* Menu */}
-                <div className='flex flex-col items-start justify-center gap-3 w-full'>
-                    <MenuItem icon={<FaHome />} label="Home" />
-                    <MenuItem icon={<FaInfoCircle />} label="About" />
-                    <MenuItem icon={<FaPhone />} label="Contact" />
-                    <MenuItem icon={<FaServicestack />} label="Services" />
-                    <MenuItem icon={<FaBlog />} label="Blog" />
-                </div>
+  return (
+    <div className="w-64 bg-teal-100 h-screen p-4 flex flex-col shadow-md">
+      <div className="text-2xl font-bold text-teal-700 mb-8">ECommerce Guider</div>
+      <nav className="flex flex-col space-y-2">
+        {menu.map((item) => (
+          <Link key={item.path} to={item.path}>
+            <div
+              className={`flex items-center px-4 py-2 rounded-md hover:bg-teal-200 transition cursor-pointer ${
+                pathname === item.path ? 'bg-teal-300 font-semibold' : ''
+              }`}
+            >
+              <span className="mr-3 text-teal-700">{item.icon}</span>
+              {item.label}
             </div>
-
-            {/* Vertical Black Line */}
-            <div className="h-screen w-[1px] bg-teal-400"></div>
-        </div>
-    )
+          </Link>
+        ))}
+      </nav>
+    </div>
+  );
 }
-
-// Reusable Menu Item component
-function MenuItem({ icon, label }) {
-    return (
-        <div className='flex items-center w-full p-3 cursor-pointer rounded-md hover:bg-gray-200 transition'>
-            <div className='text-xl text-teal-700 me-3'>{icon}</div>
-            <h1 className='text-[17px] font-medium text-gray-800 tracking-wide'>{label}</h1>
-        </div>
-    );
-}
-
-export default SideBar;

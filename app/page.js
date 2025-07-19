@@ -1,10 +1,12 @@
-import SideBar from "./component/SideBar";
+// import SideBar from "./component/SideBar";
 import { CgProfile } from "react-icons/cg";
+import Sidebar from "./component/SideBar";
+import HeroSection from "./component/HeroSection";
 
 export default function Home() {
   return (
     <div className="flex h-screen overflow-hidden">
-      <SideBar />
+      <Sidebar/>
       
       <div className="flex-1 p-6 overflow-auto">
         {/* Header */}
@@ -27,7 +29,7 @@ export default function Home() {
 
         {/* Main content can go here */}
         <div>
-          <h1 className="text-teal-700 italic font-black text-xl ">An AI power email guider with proper planns and step by step guide</h1>
+          <HeroSection/>
         </div>
       </div>
     </div>
