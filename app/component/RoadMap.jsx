@@ -51,7 +51,7 @@ export default function RoadMap() {
         />
         <button
           onClick={fetchRoadmap}
-         className="bg-teal-600 text-white px-6 py-3 rounded-full hover:bg-teal-700 transition flex items-center gap-2"
+         className="bg-teal-600 text-white px-3 py-2 rounded-full hover:bg-teal-700 transition flex items-center gap-2"
         >
           <FaSearch /> Generate
         </button>
