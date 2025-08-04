@@ -3,21 +3,26 @@ import { CgProfile } from "react-icons/cg";
 import Sidebar from '../component/SideBar'
 import RoadMap from '../component/RoadMap';
 import Competitor from '../component/Competitor';
+import Profit from '../component/Profit';
+import PlatformAdvice from '../component/PlatformAdvice';
+import Guide from '../component/Guide';
 import Topbar from '../component/Topbar';
 
 function page() {
   return (
-<div className="flex h-screen overflow-hidden">
-      <Sidebar/>
-      
+    <div className="flex h-screen overflow-hidden">
+      <Sidebar />
+
       <div className="flex-1 p-6 overflow-auto">
         <Topbar/>
+
+        {/* Main content can go here */}
         <div>
-          <Competitor/>
+          <Guide />
         </div>
       </div>
     </div>
-   )
+  )
 }
 
 export default page

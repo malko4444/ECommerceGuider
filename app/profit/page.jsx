@@ -3,6 +3,7 @@ import { CgProfile } from "react-icons/cg";
 import Sidebar from '../component/SideBar'
 import RoadMap from '../component/RoadMap';
 import Competitor from '../component/Competitor';
+import Profit from '../component/Profit';
 import Topbar from '../component/Topbar';
 
 function page() {
@@ -13,7 +14,7 @@ function page() {
       <div className="flex-1 p-6 overflow-auto">
         <Topbar/>
         <div>
-          <Competitor/>
+          <Profit/>
         </div>
       </div>
     </div>

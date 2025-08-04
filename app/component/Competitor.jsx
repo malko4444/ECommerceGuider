@@ -82,14 +82,14 @@ export default function Competitor() {
             <div key={index} className="bg-white border rounded-xl p-5 shadow hover:shadow-md transition">
               <h3 className="text-xl font-bold text-teal-700">{comp.name}</h3>
               <p className="text-gray-600 my-2">{comp.description}</p>
-              <a
+              {/* <a
                 href={comp.website}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center text-sm text-blue-600 hover:underline"
               >
                 Visit Site <FaExternalLinkAlt className="ml-1" />
-              </a>
+              </a> */}
             </div>
           ))}
         </div>

@@ -14,10 +14,10 @@ const menu = [
   { label: 'Competitor', path: '/competitor', icon: <FaChartLine /> },
   { label: 'Profit', path: '/profit', icon: <FaChartLine /> },
   { label: 'Vendors', path: '/vendors', icon: <FaUsers /> },
-  { label: 'Platform', path: '/platform', icon: <FaLayerGroup /> },
+  { label: 'Platform', path: '/platformAdvice', icon: <FaLayerGroup /> },
   { label: 'Guide', path: '/guide', icon: <FaListUl  /> },
   { label: 'Tutorials', path: '/tutorials', icon: <FaChalkboardTeacher /> },
-  { label: 'Mentor Chat', path: '/mentor-chat', icon: <FaComment /> },
+  // { label: 'Mentor Chat', path: '/mentor-chat', icon: <FaComment /> },
 ];
 
 export default function Sidebar() {
