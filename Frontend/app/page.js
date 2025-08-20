@@ -1,68 +1,51 @@
-// import SideBar from "./component/SideBar";
-import { CgProfile } from "react-icons/cg";
-import Sidebar from "./component/SideBar";
-import HeroSection from "./component/HeroSection";
+import Link from "next/link";
+import AboutProject from "./component/AboutProject";
+import Footer from "./component/Footet";
 
-export default function Home() {
+export default function HomePage() {
   return (
-    <div className="flex h-screen overflow-hidden">
-      <Sidebar/>
-      
-      <div className="flex-1 p-6 overflow-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-4">
-          <h1 className="text-4xl font-extrabold text-gray-800 tracking-wide">
-  Welcome to{" "}
-  <span className="text-teal-700 italic font-black">
-    ECommerce Guider
-  </span>
-</h1>
+    <div>
+      {/* Hero Section */}
+      <section className="relative w-full h-screen flex items-center justify-center text-center">
+        {/* Background Image with overlay */}
+        <img
+          src="/assets/images/4.jpg"
+          alt="Ecommerce illustration"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-black/60 bg-gradient-to-br from-black/70 via-teal-700/40 to-black/70" />
 
-          <div className="flex items-center px-4 py-2 bg-[#a9e0dd] rounded-lg cursor-pointer hover:bg-gray-300 transition duration-200">
-            <CgProfile className="text-2xl text-teal-800" />
-            <p className="ms-2 text-teal-800 text-lg font-semibold">Profile</p>
+        {/* Content */}
+        <div className="relative z-10 max-w-3xl px-6">
+          <h1 className="text-5xl md:text-6xl font-extrabold text-white leading-tight drop-shadow-lg">
+            Launch & Grow Your <span className="text-orange-400">Ecommerce</span> Journey
+          </h1>
+          <p className="mt-6 text-lg md:text-xl text-gray-200 drop-shadow">
+            Empowering entrepreneurs in Pakistan with AI-powered tools, guides, and insights to succeed in online business.
+          </p>
+
+          {/* CTA Buttons */}
+          <div className="mt-10 flex flex-col sm:flex-row justify-center gap-4">
+            <Link href="/login">
+              <button className="px-8 py-3 rounded-full bg-teal-600 text-white font-semibold hover:bg-teal-700 transition shadow-lg">
+                Login
+              </button>
+            </Link>
+            <Link href="/signup">
+              <button className="px-8 py-3 rounded-full bg-orange-500 text-white font-semibold hover:bg-orange-600 transition shadow-lg">
+                Signup
+              </button>
+            </Link>
           </div>
         </div>
+      </section>
 
-        {/* Divider */}
-        <div className="bg-teal-400 h-0.5 w-full mb-4"></div>
-
-        {/* Main content can go here */}
-        <div>
-          <HeroSection/>
-        </div>
+      {/* About Project Section */}
+      <div className="mt-7">
+        <AboutProject />
+        <Footer/>
       </div>
+      
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-// import SideBar from "./component/SideBar";
-// import { CgProfile } from "react-icons/cg";
-
-// export default function Home() {
-//   return (
-//     <div className="flex">
-//       <SideBar />
-//       <div>
-//         <div className="flex items-center justify-start rounded-lg mb-2">
-//           <h1 className="text-2xl font-bold ">Welcome to ECommerce Guider</h1>
-//         <div className="flex items-center justify-between p-2 rounded bg-[#93b6b4] hover:bg-gray-300 transition duration-200">
-//           <CgProfile className="text-2xl text-teal-700" />
-//           <p className="ms-1 text-teal-600 text-lg font-bold">Profile</p>
-        
-//         </div>
-//         </div>
-//         <div className="bg-teal-400 h-0.5 w-full"></div>
-//       </div>
-//     </div>
-//   );
-// }

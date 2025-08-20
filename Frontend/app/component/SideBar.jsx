@@ -7,7 +7,7 @@ import {
 } from 'react-icons/fa';
 
 const menu = [
-  { label: 'Home', path: '/', icon: <FaRoad /> },
+  { label: 'Home', path: '/home', icon: <FaRoad /> },
   { label: 'roadmap', path: '/roadmap', icon: <FaLayerGroup /> },
   { label: 'Budget', path: '/budget', icon: <FaMoneyBill /> },
   { label: 'Trending', path: '/trending-products', icon: <FaSearch /> },

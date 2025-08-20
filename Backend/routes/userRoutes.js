@@ -17,8 +17,10 @@ router.post('/signup', async (req, res) => {
         console.log("User data is valid:", userData);
 
         const { email, password, name, gender, dob, otp } = userData;
+        console.log("Extracted user data:", { email, password});
         // get the otp from the database using user email 
         const otpDoc = await db.collection('otp').doc(email).get();
+        console.log("Fetched OTP document for email:", email);
         if (!otpDoc.exists) {
             throw new Error('OTP not found for this email');
         }
@@ -33,7 +35,7 @@ router.post('/signup', async (req, res) => {
         // generate the otp 
 
         // // ✅ Create user in Firebase Auth
-        // console.log("Creating user with email:", email);
+        console.log("Creating user with email:", email);
         const userCredential = await auth.createUser({
             email,
             password,
@@ -88,4 +90,25 @@ router.get('/otpGenerate', async (req, res) => {
     }
 });
 
+router.post('/login', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        console.log("Received login request for email:", email);
+
+        // ✅ Validate input
+        if (!email || !password) {
+            throw new Error('Email and password are required');
+        }
+        console.log("Input validation passed for email:", email);
+
+        // ✅ Authenticate user with Firebase Auth
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        console.log("User logged in successfully with UID:", userCredential.user.uid);
+
+        res.status(200).json({ message: 'User logged in successfully', uid: userCredential.user.uid });
+    } catch (error) {
+        console.error('Login error:', error);
+        res.status(400).json({ error: error.message });
+    }
+});
 export default router;
