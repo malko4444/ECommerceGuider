@@ -4,16 +4,26 @@ import dotenv from 'dotenv';
 import { tavily } from '@tavily/core';
 import cors from 'cors';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import userRoutes from "./routes/userRoutes.js" // Adjust the path as necessary
+import {router as authRoutes} from "./routes/authRoutes.js";
+
+
+ // Adjust the path as necessary
+import connectDB from './config/db.js';
+// import connectDB from "./config/db.js";
+
+
 
 dotenv.config();
 const app = express();
+
 app.use(express.json());
+app.use("/auth", authRoutes);
 app.use(cors({
   origin: '*', // Or restrict to a specific domain: 'http://localhost:3000'
   methods: ['GET', 'POST'],
   allowedHeaders: ['Content-Type'],
 }));
+connectDB();
 
 // Tavily instance
 const tvly = tavily({ apiKey: process.env.TAVILY_KEY });
@@ -174,7 +184,7 @@ app.post('/api/mentor-chat', async (req, res) => {
 
 // include the router and for base route then navigate to user routes 
 
-app.use('/users', userRoutes);
+app.use('/auth', authRoutes);
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
