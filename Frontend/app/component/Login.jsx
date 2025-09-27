@@ -1,7 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { auth } from "../../config/firebase"; // ✅ Firebase config
-import { signInWithEmailAndPassword } from "firebase/auth";
+import axios from "axios";
 import { FaUser, FaLock, FaSignInAlt, FaUserPlus } from "react-icons/fa";
 import Link from "next/link";
 
@@ -12,22 +11,31 @@ export default function Login() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
+  const baseURL = "http://localhost:4000/auth/login"; // ✅ your backend login API
+
   const loginUser = async () => {
     if (!email || !password) {
       setError("Email and password are required");
       return;
     }
+
     setLoading(true);
     setError("");
     setSuccess("");
 
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-      setSuccess(`Login Succeessfully `);
-      console.log("Logged in user:", user);
-      localStorage.setItem("user", JSON.stringify(user)); // Save user data to localStorage
-      
+      const response = await axios.post(baseURL, { email, password });
+
+      // ✅ API response looks like:
+      // { "message": "Login successful", "token": "xxxxxxx" }
+      const { message, token } = response.data;
+
+      setSuccess(message || "Login successful!");
+
+      // Save token to localStorage (for future requests)
+      localStorage.setItem("token", token);
+
+      console.log("JWT Token:", token);
 
       // Redirect after login
       setTimeout(() => {
@@ -35,7 +43,7 @@ export default function Login() {
       }, 1500);
 
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.message || "Login failed, please try again.");
     } finally {
       setLoading(false);
     }
@@ -87,7 +95,7 @@ export default function Login() {
       <p className="text-center text-gray-600 mt-6">
         Don’t have an account?{" "}
         <Link
-          href="/otpGenerate"
+          href="/signup"
           className="text-teal-600 font-semibold hover:underline flex items-center justify-center gap-1"
         >
           <FaUserPlus /> Signup

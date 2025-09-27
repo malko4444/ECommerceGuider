@@ -9,7 +9,7 @@ function page() {
     const userData = localStorage.getItem("user");
     console.log("userData", userData);
     if(!userData) {
-        // window.location.href = "/login"; // Redirect to login if no user data found
+        // cdwindow.location.href = "/login"; // Redirect to login if no user data found
     }
   return (
     <div className="flex h-screen overflow-hidden">

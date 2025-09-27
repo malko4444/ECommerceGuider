@@ -6,6 +6,7 @@ import jwt from "jsonwebtoken";
 import { sendOTPEmail } from "../utils/sendEmail.js";
 import User from "../models/user.js";
 import Otp from '../models/Otp.js'
+import { protect } from "../middleware/auth.js";
 
 
 
@@ -95,6 +96,20 @@ router.post("/signup", async (req, res) => {
   }
 }
 );
+router.get("/profile", protect, async (req, res) => {
+  try {
+    // `protect` middleware already decoded token → added `req.user`
+    const userId = req.user.id;  
+
+    const user = await User.findById(userId).select("-password"); // hide password
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    res.status(200).json({ message: "Profile fetched successfully", user });
+  } catch (error) {
+    console.error("Profile fetch error:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
 
 
 

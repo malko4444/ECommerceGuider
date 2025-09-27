@@ -17,12 +17,27 @@ export default function RoadMap() {
     setRoadmap('');
 
     try {
-      const response = await axios.post('http://localhost:4000/api/roadmap', {
-        type: inputType.trim(),
-      });
+      const token = localStorage.getItem("token"); // 🔑 get token
+      console.log("the toen ", token);
+      
+      if (!token) {
+        throw new Error("No token found. Please login again.");
+      }
+
+      const response = await axios.post(
+        "http://localhost:4000/api/roadmap",
+        { type: inputType.trim() }, // body
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`, // ✅ attach token
+          },
+        }
+      );
 
       const roadmapText = response.data?.roadmap;
-      if (!roadmapText) throw new Error('No roadmap returned from server.');
+      if (!roadmapText) throw new Error("No roadmap returned from server.");
+
       setRoadmap(roadmapText);
     } catch (err) {
       console.error('Error fetching roadmap:', err);
@@ -51,7 +66,7 @@ export default function RoadMap() {
         />
         <button
           onClick={fetchRoadmap}
-         className="bg-teal-600 text-white px-3 py-2 rounded-full hover:bg-teal-700 transition flex items-center gap-2"
+          className="bg-teal-600 text-white px-3 py-2 rounded-full hover:bg-teal-700 transition flex items-center gap-2"
         >
           <FaSearch /> Generate
         </button>

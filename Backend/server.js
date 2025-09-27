@@ -7,8 +7,11 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import {router as authRoutes} from "./routes/authRoutes.js";
 
 
+
  // Adjust the path as necessary
 import connectDB from './config/db.js';
+import Prompt from './models/Prompt.js';
+import { protect } from './middleware/auth.js';
 // import connectDB from "./config/db.js";
 
 
@@ -17,29 +20,33 @@ dotenv.config();
 const app = express();
 
 app.use(express.json());
-app.use("/auth", authRoutes);
+
 app.use(cors({
-  origin: '*', // Or restrict to a specific domain: 'http://localhost:3000'
-  methods: ['GET', 'POST'],
-  allowedHeaders: ['Content-Type'],
+  origin: "http://localhost:3001",  // frontend URL
+  credentials: true                 // if you want to send cookies/auth headers
 }));
 connectDB();
+app.use("/auth", authRoutes);
 
 // Tavily instance
 const tvly = tavily({ apiKey: process.env.TAVILY_KEY });
 
 // Google GenAI instance
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
-const llm = genAI.getGenerativeModel({ model: "gemini-1.5-flash" })
+const llm = genAI.getGenerativeModel({ model:"gemini-1.5-flash-latest" })
 
 
 // 1. Business Type Selector
-app.post('/api/roadmap', async (req, res) => {
+app.post('/api/roadmap',protect, async (req, res) => {
   console.log("Received request for roadmap generation");
 
   const { type } = req.body;
   const prompt = `Give a startup roadmap for a ${type} e-commerce business in Pakistan.`;
   const result = await llm.generateContent(prompt);
+  const userId = req.user.id;  
+  console.log("user id",userId);
+  
+
   res.json({ roadmap: result.response.text() });
 });
 
