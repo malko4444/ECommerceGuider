@@ -33,7 +33,8 @@ const tvly = tavily({ apiKey: process.env.TAVILY_KEY });
 
 // Google GenAI instance
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
-const llm = genAI.getGenerativeModel({ model:"gemini-1.5-flash-latest" })
+const llm = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
 
 
 // 1. Business Type Selector
