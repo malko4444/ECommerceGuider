@@ -19,6 +19,7 @@ export default function PlatformAdvice() {
     try {
       const response = await axios.post('http://localhost:4000/api/platform', {
         goal: goal.trim(),
+        Credential:true
       });
 
       const { advice } = response.data;

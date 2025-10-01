@@ -17,9 +17,21 @@ export default function Budget() {
     setPlan('');
 
     try {
-      const response = await axios.post('http://localhost:4000/api/budget', {
-        budget: budgetInput.trim(),
-      });
+      const token = localStorage.getItem("token"); // 🔑 get token
+      console.log("the toen ", token);
+      
+      
+      const response = await axios.post(
+  "http://localhost:4000/api/budget",
+  { budget: budgetInput.trim() },  // body
+  {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`, // ✅ proper headers
+    },
+  }
+);
+
 
       const planText = response.data?.plan;
       if (!planText) throw new Error('No plan returned from server.');
