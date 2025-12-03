@@ -5,6 +5,7 @@ import ReactMarkdown from 'react-markdown';
 import { FaRoad, FaSearch } from 'react-icons/fa';
 
 export default function RoadMap() {
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
   const [inputType, setInputType] = useState('');
   const [roadmap, setRoadmap] = useState('');
   const [loading, setLoading] = useState(false);
@@ -25,7 +26,7 @@ export default function RoadMap() {
       }
 
       const response = await axios.post(
-        "http://localhost:4000/api/roadmap",
+        `${API_BASE_URL}/api/roadmap`,
         { type: inputType.trim() }, // body
         {
           headers: {

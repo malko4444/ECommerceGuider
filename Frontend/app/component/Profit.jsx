@@ -17,13 +17,26 @@ export default function Profit() {
     setLoading(true);
     setError('');
     setResultText('');
+    const token = localStorage.getItem("token"); // 🔑 get token
+      console.log("the toen ", token);
+      
+      if (!token) {
+        throw new Error("No token found. Please login again.");
+      }
 
     try {
       const response = await axios.post('http://localhost:4000/api/profit', {
+        type: inputType.trim(),
         cost,
         adBudget,
         sellingPrice,
-      });
+      },
+    {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`, // ✅ attach token
+          },
+        });
 
       const { result } = response.data;
       if (!result) throw new Error('Invalid response format');

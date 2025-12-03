@@ -4,6 +4,8 @@ import axios from 'axios';
 import { FaChartLine, FaSearch, FaExternalLinkAlt } from 'react-icons/fa';
 
 export default function Competitor() {
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
   const [productInput, setProductInput] = useState('');
   const [analysisText, setAnalysisText] = useState('');
   const [competitors, setCompetitors] = useState([]);
@@ -18,9 +20,18 @@ export default function Competitor() {
     setCompetitors([]);
 
     try {
-      const response = await axios.post('http://localhost:4000/api/competitor', {
+      console.log("the bnase url ", API_BASE_URL);
+      
+      const response = await axios.post(`${API_BASE_URL}/api/competitor`, {
         product: productInput.trim(),
-      });
+      },
+    { type: inputType.trim() }, // body
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`, // ✅ attach token
+          },
+        });
 
       const { analysis, competitors } = response.data;
       if (!analysis || !Array.isArray(competitors)) {

@@ -19,7 +19,13 @@ export default function Guide() {
     try {
       const response = await axios.post('http://localhost:4000/api/guide', {
         platform: platform.trim(),
-      });
+      },
+    {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`, // ✅ attach token
+          },
+        });
 
       const { guide } = response.data;
       if (!guide) throw new Error('No guide content returned');
