@@ -9,6 +9,7 @@ export default function Guide() {
   const [guideText, setGuideText] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
   const fetchLaunchGuide = async () => {
     if (!platform.trim()) return;
@@ -16,16 +17,22 @@ export default function Guide() {
     setError('');
     setGuideText('');
 
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setError("No token found. Please login again.");
+      setLoading(false);
+      return;
+    }
+
     try {
-      const response = await axios.post('http://localhost:4000/api/guide', {
+      const response = await axios.post(`${API_BASE_URL}/api/guide`, {
         platform: platform.trim(),
-      },
-    {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`, // ✅ attach token
-          },
-        });
+      }, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       const { guide } = response.data;
       if (!guide) throw new Error('No guide content returned');

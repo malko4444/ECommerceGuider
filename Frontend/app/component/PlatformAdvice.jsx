@@ -9,6 +9,7 @@ export default function PlatformAdvice() {
   const [adviceText, setAdviceText] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
   const fetchPlatformAdvice = async () => {
     if (!goal.trim()) return;
@@ -16,10 +17,21 @@ export default function PlatformAdvice() {
     setError('');
     setAdviceText('');
 
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setError("No token found. Please login again.");
+      setLoading(false);
+      return;
+    }
+
     try {
-      const response = await axios.post('http://localhost:4000/api/platform', {
-        goal: goal.trim(),
-        Credential:true
+      const response = await axios.post(`${API_BASE_URL}/api/platform`, {
+        goal: goal.trim()
+      }, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        }
       });
 
       const { advice } = response.data;

@@ -375,24 +375,36 @@ RULES:
 // ═══════════════════════════════════════════════════════════════════════
 app.post('/api/profit', protect, async (req, res) => {
   const { cost, adBudget, sellingPrice } = req.body;
+  console.log("the cost receive", cost, adBudget, sellingPrice);
+  
 
   if (isInvalidAmount(cost)) {
     return res.status(400).json({ result: "⚠️ Please enter a valid product cost greater than PKR 0." });
   }
+  console.log("the cost ", cost);
+
   if (isInvalidAmount(adBudget)) {
     return res.status(400).json({ result: "⚠️ Please enter a valid ad budget in PKR. Enter 1 if you have no ad spend." });
   }
+  console.log("jksajdljlj");
+  
   if (isInvalidAmount(sellingPrice)) {
     return res.status(400).json({ result: "⚠️ Please enter a valid selling price greater than PKR 0." });
   }
+  console.log("jskka");
+  
   if (Number(sellingPrice) <= Number(cost)) {
     return res.status(400).json({
       result: `⚠️ Your selling price (PKR ${sellingPrice}) is equal to or lower than your product cost (PKR ${cost}). You will not make a profit this way.\n💡 Try raising your selling price above PKR ${Number(cost) + 1}.`
     });
   }
+  console.log( "asad");
+  
   if (isExcessiveAmount(cost) || isExcessiveAmount(sellingPrice)) {
     return res.status(400).json({ result: "⚠️ One of your values seems too high. Please enter realistic PKR amounts." });
   }
+  console.log("after accepting");
+  
 
   const systemPrompt = `
 You are the PROFIT CALCULATOR tool for an e-commerce coaching app focused on the Pakistani market.

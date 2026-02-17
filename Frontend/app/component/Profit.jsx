@@ -11,6 +11,7 @@ export default function Profit() {
   const [resultText, setResultText] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
   const fetchProfitAnalysis = async () => {
     if (!cost || !adBudget || !sellingPrice) return;
@@ -22,11 +23,13 @@ export default function Profit() {
       
       if (!token) {
         throw new Error("No token found. Please login again.");
+      }else{
+        console.log("the token found ", token);
       }
 
     try {
-      const response = await axios.post('http://localhost:4000/api/profit', {
-        type: inputType.trim(),
+      console.log("the base url ", API_BASE_URL);
+      const response = await axios.post(`${API_BASE_URL}/api/profit`, {
         cost,
         adBudget,
         sellingPrice,
