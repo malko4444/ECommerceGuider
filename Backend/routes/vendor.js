@@ -67,24 +67,30 @@ vendorRouter.delete("/delete/:id", async (req, res) => {
   }
 });
 // update vendor
-vendorRouter.put("/update/:id", (req, res) => {
+vendorRouter.put("/update/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const { vendorName, category, website, email } = req.body;
-    Vendor.findByIdAndUpdate(
+
+    const updatedVendor = await Vendor.findByIdAndUpdate(
       id,
-        { vendorName, category, website, email },
-         { new: true },
-        (err, updatedVendor) => {
-            if (err) {
-                res.status(500).json({ error: "Failed to update vendor" });
-            } else {
-                res.json({ message: `Vendor with ID ${id} updated successfully`, vendor: updatedVendor });
-            }
-        }
+      { vendorName, category, website, email },
+      { new: true, runValidators: true }   // ← both flags matter
     );
+
+    if (!updatedVendor) {
+      return res.status(404).json({ error: "Vendor not found" });
+    }
+
+    res.json({
+      message: `Vendor with ID ${id} updated successfully`,
+      vendor: updatedVendor
+    });
   } catch (error) {
-    res.status(500).json({ error: "Failed to update vendor" });
+    res.status(500).json({
+      error: "Failed to update vendor",
+      details: error.message
+    });
   }
 });
 

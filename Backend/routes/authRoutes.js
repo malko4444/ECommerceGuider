@@ -45,7 +45,9 @@ router.post("/otpGenerate", async (req, res) => {
     const { email } = req.body;
     if (!email) throw new Error("Email is required");
 
+
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    console.log(`Generated OTP for ${email}: ${otp}`);
 
     await Otp.findOneAndUpdate(
       { email },

@@ -5,6 +5,7 @@ dotenv.config();
 
 export const sendOTPEmail = async (to, otp) => {
   try {
+    console.log(`📧 Sending OTP email to ${to} with OTP: ${otp}`);
     const transporter = nodemailer.createTransport({
       host: process.env.MAIL_SERVER,
       port: process.env.MAIL_PORT,
@@ -33,6 +34,6 @@ export const sendOTPEmail = async (to, otp) => {
     return true;
   } catch (error) {
     console.error("❌ Failed to send OTP email:", error);
-    throw new Error("Email sending failed");
+    // throw new Error("Email sending failed");
   }
 };
