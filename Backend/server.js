@@ -9,6 +9,7 @@ import { router as authRoutes } from "./routes/authRoutes.js";
 import connectDB from './config/db.js';
 import Prompt from './models/Prompt.js';
 import { protect } from './middleware/auth.js';
+import vendorRouter from './routes/vendor.js';
 
 dotenv.config();
 
@@ -26,6 +27,7 @@ app.use(cors({
 
 connectDB();
 app.use("/auth", authRoutes);
+app.use("/vendor", vendorRouter);
 
 const tvly = tavily({ apiKey: process.env.TAVILY_KEY });
 const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -105,9 +107,11 @@ function looksLikePersonName(value) {
 // Input  : type  (product name OR business type — text only)
 // Output : roadmap (string)
 // ═══════════════════════════════════════════════════════════════════════
-app.post('/api/roadmap', protect, async (req, res) => {
+app.post('/api/roadmap', async (req, res) => {
   console.log("Received request for roadmap generation");
   const { type } = req.body;
+  console.log("2131321321321321");
+
 
   // Layer 1 — empty / gibberish
   if (isInvalidText(type)) {
@@ -115,6 +119,8 @@ app.post('/api/roadmap', protect, async (req, res) => {
       roadmap: "⚠️ Please enter a product name or business type to generate your roadmap.\nExamples: 'women's clothing', 'mobile accessories', 'skincare products', 'electronics store'."
     });
   }
+  console.log("2131321321321321");
+  
 
   // Layer 2 — number or money amount entered by mistake
   if (isPureNumberOrAmount(type)) {
@@ -122,6 +128,8 @@ app.post('/api/roadmap', protect, async (req, res) => {
       roadmap: "⚠️ You entered a number or amount here, but this field needs a product or business type — not a budget.\n👉 To plan your budget, go to the Budget Planner page."
     });
   }
+  console.log("2131321321321321");
+
 
   // Layer 3 — person name entered by mistake
   if (looksLikePersonName(type)) {
@@ -129,6 +137,7 @@ app.post('/api/roadmap', protect, async (req, res) => {
       roadmap: `⚠️ "${type}" looks like a person's name, not a product or business type.\nPlease enter what you want to sell — for example: "clothing", "handmade jewelry", "phone cases", or "beauty products".`
     });
   }
+  console.log("2131321321321321");
 
   // Layer 4 — AI does final validation then generates the roadmap
   const systemPrompt = `
@@ -179,7 +188,9 @@ Keep advice practical, Pakistan-specific, and beginner-friendly. Use PKR for all
 
   try {
     const result = await generateWithOpenAI(systemPrompt, userPrompt);
-    console.log("user id", req.user.id);
+  console.log("0000000");
+
+    // console.log("user id", req.user.id);
     res.json({ roadmap: result });
   } catch (error) {
     console.error("Roadmap Error:", error);

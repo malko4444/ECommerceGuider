@@ -22,8 +22,9 @@ export default function RoadMap() {
       console.log("the toen ", token);
       
       if (!token) {
-        throw new Error("No token found. Please login again.");
+        // throw new Error("No token found. Please login again.");
       }
+      const token1 = "hhshydyfisdiufyhiudsyfiuysdiufyiysdf"
 
       const response = await axios.post(
         `${API_BASE_URL}/api/roadmap`,
@@ -31,7 +32,7 @@ export default function RoadMap() {
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`, // ✅ attach token
+            Authorization: `Bearer ${token1}`, // ✅ attach token
           },
         }
       );
