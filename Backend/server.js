@@ -10,6 +10,7 @@ import connectDB from './config/db.js';
 import Prompt from './models/Prompt.js';
 import { protect } from './middleware/auth.js';
 import vendorRouter from './routes/vendor.js';
+import { adminRouter } from './routes/adminRoutes.js';
 
 dotenv.config();
 
@@ -28,6 +29,7 @@ app.use(cors({
 connectDB();
 app.use("/auth", authRoutes);
 app.use("/vendor", vendorRouter);
+app.use("/admin", adminRouter);
 
 const tvly = tavily({ apiKey: process.env.TAVILY_KEY });
 const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });

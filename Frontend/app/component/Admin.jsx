@@ -4,7 +4,7 @@ import axios from 'axios';
 import {
   FaUserShield, FaPlus, FaTrash, FaEdit, FaSearch,
   FaStore, FaTags, FaGlobe, FaEnvelope, FaTimes,
-  FaCheckCircle, FaExclamationTriangle
+  FaCheckCircle, FaExclamationTriangle, FaSignOutAlt
 } from 'react-icons/fa';
 
 // Color palette per category — stays within the teal-family theme
@@ -26,7 +26,9 @@ const CATEGORIES = [
 ];
 
 export default function Admin() {
-  // ─── form state ────────────────────────────────
+  // ─── form state ───────────────────────────────
+  // ─
+  const [loggingOut, setLoggingOut] = useState(false);
   const [vendorName, setVendorName] = useState('');
   const [category, setCategory] = useState('');
   const [website, setWebsite] = useState('');
@@ -47,6 +49,25 @@ export default function Admin() {
   // ════════════════════════════════════════════════
   // API HELPERS
   // ════════════════════════════════════════════════
+
+const handleLogout = async () => {
+  if (!window.confirm("Sign out of the admin console?")) return;
+  try {
+    setLoggingOut(true);
+    await axios.post(
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/logout`,
+      {},
+      { withCredentials: true }
+    );
+    localStorage.removeItem('admin');
+    localStorage.removeItem('rememberAdminEmail');
+    window.location.href = '/admin/login';
+  } catch (error) {
+    console.log(error);
+    showMessage("Logout failed. Please try again.", 'error');
+    setLoggingOut(false);
+  }
+};
   const fetchVendors = async () => {
     try {
       setLoading(true);
@@ -145,19 +166,39 @@ export default function Admin() {
       <div className="max-w-7xl mx-auto">
 
         {/* ═══ HEADER ═══ */}
-        <div className="mb-8 flex items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-teal-500 to-teal-700 flex items-center justify-center shadow-lg shadow-teal-600/30">
-            <FaUserShield className="text-white text-2xl" />
-          </div>
-          <div>
-            <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
-              Admin Dashboard
-            </h1>
-            <p className="text-slate-500 text-sm mt-0.5">
-              Manage your vendor directory — add, edit, and organize trusted suppliers.
-            </p>
-          </div>
-        </div>
+       {/* ═══ HEADER ═══ */}
+<div className="mb-8 flex items-center justify-between gap-4 flex-wrap">
+  <div className="flex items-center gap-4">
+    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-teal-500 to-teal-700 flex items-center justify-center shadow-lg shadow-teal-600/30">
+      <FaUserShield className="text-white text-2xl" />
+    </div>
+    <div>
+      <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+        Admin Dashboard
+      </h1>
+      <p className="text-slate-500 text-sm mt-0.5">
+        Manage your vendor directory — add, edit, and organize trusted suppliers.
+      </p>
+    </div>
+  </div>
+
+  <button
+    onClick={handleLogout}
+    disabled={loggingOut}
+    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-red-50 text-slate-700 hover:text-red-600 border border-slate-200 hover:border-red-200 font-semibold text-sm shadow-sm transition disabled:opacity-60 disabled:cursor-not-allowed"
+  >
+    {loggingOut ? (
+      <>
+        <span className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+        Signing out…
+      </>
+    ) : (
+      <>
+        <FaSignOutAlt size={13} /> Sign out
+      </>
+    )}
+  </button>
+</div>
 
         {/* ═══ STATS ═══ */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">

@@ -6,7 +6,7 @@ import { SidebarProvider } from './SidebarContext';
 
 // Routes where the dashboard shell (Sidebar + Topbar) should be HIDDEN.
 // Use exact paths for landing/auth screens.
-const BARE_ROUTES = ['/', '/login', '/signup'];
+const BARE_ROUTES = ['/', '/login', '/signup', '/admin/login', '/admin/signup','/admin'];
 
 export default function LayoutWrapper({ children }) {
   const pathname = usePathname();

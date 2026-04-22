@@ -2,9 +2,10 @@ import express from "express";
 
 const vendorRouter = express.Router();
 import Vendor from "../models/Vendor.js";
+import { protectAdmin } from "../middleware/protectAdmin.js";
 
 
-vendorRouter.get("/dashboard",async (req, res) => {
+vendorRouter.get("/dashboard",protectAdmin,async (req, res) => {
   
   try {
     const vendors = await Vendor.find({});
@@ -14,7 +15,7 @@ vendorRouter.get("/dashboard",async (req, res) => {
   }
 });
 
-vendorRouter.post("/add", async (req, res) => {
+vendorRouter.post("/add",protectAdmin, async (req, res) => {
   try {
     console.log("Received vendor data:", req.body);
 
@@ -47,7 +48,7 @@ vendorRouter.post("/add", async (req, res) => {
   }
 });
 // delete vendor
-vendorRouter.delete("/delete/:id", async (req, res) => {
+vendorRouter.delete("/delete/:id",protectAdmin, async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -67,7 +68,7 @@ vendorRouter.delete("/delete/:id", async (req, res) => {
   }
 });
 // update vendor
-vendorRouter.put("/update/:id", async (req, res) => {
+vendorRouter.put("/update/:id",protectAdmin, async (req, res) => {
   try {
     const { id } = req.params;
     const { vendorName, category, website, email } = req.body;
