@@ -23,6 +23,11 @@ const vendorSchema = new mongoose.Schema(
         "Other",
       ],
     },
+    phone: {
+      type: String,
+      required: true,
+      trim: true,
+    },
     website: {
       type: String,
       required: true,

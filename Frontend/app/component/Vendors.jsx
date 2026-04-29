@@ -3,7 +3,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
 import {
   FaStore, FaSyncAlt, FaSearch, FaGlobe, FaEnvelope,
-  FaExternalLinkAlt, FaTags
+  FaExternalLinkAlt, FaTags,
+  FaPhone
 } from 'react-icons/fa';
 
 // Same palette as the Admin page — keeps the app feeling consistent
@@ -34,7 +35,19 @@ export default function Vendors() {
     try {
       setLoading(true);
       setError('');
-      const res = await axios.get('http://localhost:4000/vendor/dashboard');
+      // get teh token from local storage and send it in the header to authenticate the request
+      const token = localStorage.getItem('token');
+      
+      // get the same data and end point just add the withcredetials to send the cookie
+      const res = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/vendor/all`,
+        {
+          withCredentials: true,
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
       setVendors(res.data.vendors || []);
     } catch (err) {
       console.error('Error fetching vendors:', err);
@@ -209,6 +222,10 @@ function VendorCard({ vendor }) {
           <div className="flex items-center gap-2 text-slate-600 min-w-0">
             <FaEnvelope className="text-slate-400 shrink-0" size={12} />
             <span className="truncate">{vendor.email}</span>
+          </div>
+          <div className="flex items-center gap-2 text-slate-600 min-w-0">
+            <FaPhone className="text-slate-400 shrink-0" size={12} />
+            <span className="truncate">{vendor.phone}</span>
           </div>
         </div>
 

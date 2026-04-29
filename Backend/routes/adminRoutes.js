@@ -14,17 +14,21 @@ const sendTokenCookie = (res, admin) => {
     { expiresIn: "7d" }
   );
 
-  res.cookie("adminToken", token, {
-    httpOnly: true,                                   // not accessible via JS
-    secure: process.env.NODE_ENV === "production",    // https only in prod
-    sameSite: "strict",                               // CSRF protection
-    maxAge: 7 * 24 * 60 * 60 * 1000,                  // 7 days
+ res.cookie("adminToken", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production", // false in dev
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    // ↑ "none" required for cross-site in prod, but needs secure:true
+    maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 };
+
+
 
 // Signup
 adminRouter.post("/signup", async (req, res) => {
   try {
+    console.log("Signing up admin:", req.body);
     const { email, password } = req.body;
     if (!email || !password) throw new Error("Email and password required");
 
@@ -72,4 +76,15 @@ adminRouter.post("/login", async (req, res) => {
 adminRouter.post("/logout", (req, res) => {
   res.clearCookie("adminToken");
   res.status(200).json({ message: "Logged out" });
+});
+adminRouter.get("/verify", (req, res) => {
+  console.log("Verifying admin access with cookies:", req.cookies);
+  const token = req.cookies.adminToken;
+  if (!token) return res.status(401).json({ error: "No token" });
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    res.status(200).json({ admin: { id: decoded.id, email: decoded.email } });
+  } catch (error) {
+    res.status(401).json({ error: "Invalid token" });
+  }
 });

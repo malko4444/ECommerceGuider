@@ -33,6 +33,7 @@ export default function Admin() {
   const [category, setCategory] = useState('');
   const [website, setWebsite] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [editId, setEditId] = useState(null);
 
   // ─── list + ui state ───────────────────────────
@@ -71,7 +72,8 @@ const handleLogout = async () => {
   const fetchVendors = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("http://localhost:4000/vendor/dashboard");
+       
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/vendor/dashboard`, { withCredentials: true });
       setVendors(res.data.vendors || []);
     } catch (error) {
       console.log(error);
@@ -89,26 +91,26 @@ const handleLogout = async () => {
   };
 
   const resetForm = () => {
-    setVendorName(''); setCategory(''); setWebsite(''); setEmail('');
+    setVendorName(''); setCategory(''); setWebsite(''); setEmail(''); setPhone('');
     setEditId(null);
   };
 
   const handleSubmit = async () => {
-    if (!vendorName || !category || !website || !email) {
+    if (!vendorName || !category || !website || !email || !phone) {
       showMessage("Please fill in all fields.", 'error');
       return;
     }
     try {
       setSubmitting(true);
       if (editId) {
-        await axios.put(`http://localhost:4000/vendor/update/${editId}`, {
-          vendorName, category, website, email
-        });
+        await axios.put(`${process.env.NEXT_PUBLIC_API_BASE_URL}/vendor/update/${editId}`, {
+          vendorName, category, website, email, phone
+        }, { withCredentials: true });
         showMessage("Vendor updated successfully.");
       } else {
-        await axios.post("http://localhost:4000/vendor/add", {
-          vendorName, category, website, email
-        });
+        await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/vendor/add`, {
+          vendorName, category, website, email, phone
+        }, { withCredentials: true }  );
         showMessage("Vendor added successfully.");
       }
       resetForm();
@@ -124,7 +126,7 @@ const handleLogout = async () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this vendor? This cannot be undone.")) return;
     try {
-      await axios.delete(`http://localhost:4000/vendor/delete/${id}`);
+      await axios.delete(`${process.env.NEXT_PUBLIC_API_BASE_URL}/vendor/delete/${id}`, { withCredentials: true });
       showMessage("Vendor deleted.");
       fetchVendors();
     } catch (error) {
@@ -137,6 +139,7 @@ const handleLogout = async () => {
     setCategory(vendor.category);
     setWebsite(vendor.website);
     setEmail(vendor.email);
+    setPhone(vendor.phone);
     setEditId(vendor._id);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -257,6 +260,13 @@ const handleLogout = async () => {
               <input
                 type="email" placeholder="vendor@example.com"
                 value={email} onChange={(e) => setEmail(e.target.value)}
+                className="input"
+              />
+            </Field>
+            <Field label="Phone">
+              <input
+                type="text" placeholder="123-456-7890"
+                value={phone} onChange={(e) => setPhone(e.target.value)}
                 className="input"
               />
             </Field>
@@ -443,6 +453,10 @@ function VendorCard({ vendor, onEdit, onDelete }) {
           <FaEnvelope className="text-slate-400 shrink-0" size={12} />
           <span className="truncate">{vendor.email}</span>
         </a>
+        <div className="flex items-center gap-2 text-slate-600">
+          <span className="text-slate-400 shrink-0">📞</span>
+          <span className="truncate">{vendor.phone}</span>
+        </div>
       </div>
     </div>
   );

@@ -15,21 +15,25 @@ import { adminRouter } from './routes/adminRoutes.js';
 dotenv.config();
 
 const app = express();
+
+
+app.use(cors({
+  origin: "http://localhost:3000",
+  credentials: true
+}));
+
 app.use(cookieParser());
 app.use(express.json());
 app.use((req, res, next) => {
   console.log("Incoming cookies:", req.cookies);
   next();
 });
-app.use(cors({
-  origin: "http://localhost:3000",
-  credentials: true
-}));
+
 
 connectDB();
 app.use("/auth", authRoutes);
 app.use("/vendor", vendorRouter);
-app.use("/admin", adminRouter);
+
 
 const tvly = tavily({ apiKey: process.env.TAVILY_KEY });
 const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -109,7 +113,7 @@ function looksLikePersonName(value) {
 // Input  : type  (product name OR business type — text only)
 // Output : roadmap (string)
 // ═══════════════════════════════════════════════════════════════════════
-app.post('/api/roadmap', async (req, res) => {
+app.post('/api/roadmap', protect,async (req, res) => {
   console.log("Received request for roadmap generation");
   const { type } = req.body;
   console.log("2131321321321321");
@@ -711,6 +715,7 @@ If the question contains offensive or harmful content, reply ONLY:
     res.status(500).json({ error: "Failed to get mentor response." });
   }
 });
+app.use("/admin", adminRouter);
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

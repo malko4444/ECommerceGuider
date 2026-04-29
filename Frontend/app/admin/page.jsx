@@ -13,7 +13,7 @@ function Page() {
       try {
         // Hit a protected endpoint — backend checks the HTTP-only cookie
         await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/verify`,
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/verify`,
           { withCredentials: true }
         );
         setChecking(false);
