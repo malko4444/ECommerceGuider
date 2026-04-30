@@ -1,16 +1,18 @@
 'use client';
 import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import Link from '@bradgarropy/next-link';
 import HeroSection from '../component/HeroSection';
 import {
   FaRoad, FaMoneyBillWave, FaSearchDollar, FaChartLine,
   FaStore, FaLayerGroup, FaListUl, FaChalkboardTeacher,
-  FaArrowRight, FaHandSparkles, FaMagic
+  FaArrowRight, FaHandSparkles, FaMagic, FaTrophy, FaRobot
 } from 'react-icons/fa';
 
 const TOOLS = [
   { title: 'AI Vendor Matchmaker', desc: 'Describe your need, get top matches', path: '/match', icon: <FaMagic />, tone: 'teal', featured: true },
+  { title: 'AI Mentor Chat', desc: 'Chat with a mentor who knows your roadmap', path: '/mentor', icon: <FaRobot />, tone: 'emerald' },
   { title: 'Startup Roadmap',   desc: 'Phase-by-phase launch plan',        path: '/roadmap',           icon: <FaRoad />,            tone: 'teal' },
   { title: 'Budget Planner',    desc: 'Allocate your PKR smartly',         path: '/budget',            icon: <FaMoneyBillWave />,   tone: 'emerald' },
   { title: 'Trending Products', desc: 'See what\'s selling now',           path: '/trending-products', icon: <FaSearchDollar />,    tone: 'amber' },
@@ -45,6 +47,7 @@ export default function Page() {
   const router = useRouter();
   const [userName, setUserName] = useState('');
   const [checking, setChecking] = useState(true);
+  const [activeRoadmap, setActiveRoadmap] = useState(null);
 
   // Auth + user check runs on client only — localStorage doesn't exist on server
   useEffect(() => {
@@ -67,6 +70,24 @@ export default function Page() {
       setChecking(false);
     }
   }, [router]);
+
+  // Load the user's active roadmap (if any) so we can surface it on the dashboard.
+  useEffect(() => {
+    const fetchActive = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+        const res = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/roadmaps/active`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setActiveRoadmap(res.data?.roadmap || null);
+      } catch (err) {
+        // Silent — dashboard works without this.
+      }
+    };
+    fetchActive();
+  }, []);
 
   if (checking) {
     return (
@@ -101,6 +122,43 @@ export default function Page() {
           </p>
         </div>
       </div>
+
+      {/* ═══ ACTIVE ROADMAP CARD ═══ */}
+      {activeRoadmap && (() => {
+        const allTasks = (activeRoadmap.phases || []).flatMap((p) => p.tasks || []);
+        const total = allTasks.length;
+        const done = allTasks.filter((t) => t.done).length;
+        const pct = total ? Math.round((done / total) * 100) : 0;
+        return (
+          <Link to={`/roadmap/${activeRoadmap._id}`}>
+            <div className="group relative overflow-hidden bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-lg hover:border-teal-200 transition-all p-5 sm:p-6 cursor-pointer">
+              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-teal-400 via-teal-500 to-emerald-500" />
+              <div className="flex items-center justify-between gap-4 flex-wrap">
+                <div className="flex items-center gap-4 min-w-0">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500 to-teal-700 text-white flex items-center justify-center shadow-md shadow-teal-600/30 shrink-0">
+                    <FaTrophy />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-teal-600">Continue your roadmap</p>
+                    <p className="font-extrabold text-slate-900 text-lg truncate">{activeRoadmap.productType}</p>
+                    <p className="text-xs text-slate-500 mt-0.5">{done} / {total} tasks done · {pct}% complete</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="hidden sm:block w-32">
+                    <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                      <div className="h-full bg-gradient-to-r from-teal-400 to-emerald-500 transition-all" style={{ width: `${pct}%` }} />
+                    </div>
+                  </div>
+                  <div className="inline-flex items-center gap-2 bg-teal-600 group-hover:bg-teal-700 text-white px-4 py-2 rounded-lg font-bold text-sm shadow-md shadow-teal-600/20 transition">
+                    Continue <FaArrowRight size={11} />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Link>
+        );
+      })()}
 
       {/* ═══ HERO SECTION (existing component) ═══ */}
       <HeroSection />

@@ -1,14 +1,11 @@
-import React from 'react'
-import { CgProfile } from "react-icons/cg";
-import Sidebar from '../component/SideBar'
-import RoadMap from '../component/RoadMap';
+'use client';
+import React, { Suspense } from 'react';
 import Competitor from '../component/Competitor';
-import Topbar from '../component/Topbar';
 
-function page() {
+export default function Page() {
   return (
-<Competitor/>
-   )
+    <Suspense fallback={<div className="max-w-6xl mx-auto py-12 px-4 text-slate-400 text-sm">Loading competitor analysis...</div>}>
+      <Competitor />
+    </Suspense>
+  );
 }
-
-export default page

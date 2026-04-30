@@ -1,10 +1,11 @@
-import React from 'react'
-import Budget from '../component/Budget'
+'use client';
+import React, { Suspense } from 'react';
+import Budget from '../component/Budget';
 
-function page() {
+export default function Page() {
   return (
-   <Budget />
-  )
+    <Suspense fallback={<div className="max-w-5xl mx-auto py-12 px-4 text-slate-400 text-sm">Loading budget planner...</div>}>
+      <Budget />
+    </Suspense>
+  );
 }
-
-export default page;

@@ -1,13 +1,14 @@
 'use client';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
-import ReactMarkdown from 'react-markdown';
+import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
   FaMoneyBillWave, FaSearchDollar, FaLightbulb,
-  FaExclamationCircle, FaRedo, FaCoins
+  FaExclamationCircle, FaRedo, FaCoins, FaHistory,
+  FaArrowRight, FaRoad, FaMapMarkerAlt, FaStore, FaUserGraduate
 } from 'react-icons/fa';
 
-// Budget tiers match the backend system prompt — keep in sync.
 const TIERS = [
   { min: 1,      max: 4999,    label: 'Micro',  tone: 'bg-slate-100 text-slate-700 border-slate-200',   note: 'Digital products or dropshipping' },
   { min: 5000,   max: 24999,   label: 'Small',  tone: 'bg-sky-50    text-sky-700    border-sky-200',    note: '1 product, minimal stock' },
@@ -23,63 +24,86 @@ const PRESETS = [
   { amount: 250000, label: 'PKR 2.5 Lakh' },
 ];
 
-function formatPKR(n) {
+const formatPKR = (n) => {
   const num = Number(n);
   if (!num || isNaN(num)) return '';
   return num.toLocaleString('en-PK');
-}
+};
 
-function getTier(amount) {
+const getTier = (amount) => {
   const num = Number(amount);
   if (!num || isNaN(num) || num <= 0) return null;
   return TIERS.find(t => num >= t.min && num <= t.max) || null;
-}
+};
+
+const authHeader = () => {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
 
 export default function Budget() {
-  const [budgetInput, setBudgetInput] = useState('');
-  const [currentBudget, setCurrentBudget] = useState('');
-  const [plan, setPlan] = useState('');
+  const API = process.env.NEXT_PUBLIC_API_BASE_URL;
+  const router = useRouter();
+  const search = useSearchParams();
+
+  // Roadmap context — read from query params if user came from a roadmap task.
+  const ctx = {
+    productType: search.get('productType') || '',
+    roadmapId: search.get('roadmapId') || '',
+    city: search.get('city') || '',
+    platform: search.get('platform') || '',
+    experience: search.get('experience') || '',
+    budgetFromUrl: search.get('budget') || '',
+  };
+  const hasRoadmapCtx = Boolean(ctx.roadmapId);
+
+  const [budgetInput, setBudgetInput] = useState(ctx.budgetFromUrl);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   const liveTier = useMemo(() => getTier(budgetInput), [budgetInput]);
 
-  const fetchBudgetPlan = async (override) => {
+  // If we arrived with full context AND a budget, auto-run once.
+  useEffect(() => {
+    if (hasRoadmapCtx && ctx.budgetFromUrl && Number(ctx.budgetFromUrl) > 0) {
+      generate(ctx.budgetFromUrl);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const generate = async (override) => {
     const value = (override ?? budgetInput).toString().trim();
     if (!value) return;
     if (override !== undefined) setBudgetInput(String(override));
-    setCurrentBudget(value);
 
     setLoading(true);
     setError('');
-    setPlan('');
-
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.post(
-        'http://localhost:4000/api/budget',
-        { budget: value },
+      const res = await axios.post(
+        `${API}/api/budget`,
         {
-          headers: {
-            'Content-Type': 'application/json',
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          },
-        }
+          budget: Number(value),
+          productType: ctx.productType,
+          roadmapId: ctx.roadmapId || undefined,
+          city: ctx.city,
+          platform: ctx.platform,
+          experience: ctx.experience,
+        },
+        { headers: { 'Content-Type': 'application/json', ...authHeader() } }
       );
 
-      const planText = response.data?.plan;
-      if (!planText) throw new Error('No plan returned from server.');
-      setPlan(planText);
+      const id = res.data?.budget?._id;
+      if (!id) throw new Error('No budget returned');
+      router.push(`/budget/${id}`);
     } catch (err) {
-      console.error('Error fetching budget plan:', err);
-      setError('Failed to load budget plan. Please check your connection and try again.');
-    } finally {
+      console.error(err);
+      const msg = err.response?.data?.error || 'Failed to generate budget. Please try again.';
+      setError(msg);
       setLoading(false);
     }
   };
 
   const handleInputChange = (e) => {
-    // Allow only digits — keeps input clean for currency
     const value = e.target.value.replace(/[^\d]/g, '');
     setBudgetInput(value);
   };
@@ -87,38 +111,74 @@ export default function Budget() {
   return (
     <section className="max-w-5xl mx-auto">
 
-      {/* ═══ HERO + INPUT CARD ═══ */}
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 sm:p-7 mb-6">
-        <div className="flex items-start sm:items-center gap-3 mb-5">
-          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-teal-500 to-teal-700 flex items-center justify-center shadow-lg shadow-teal-600/30 shrink-0">
-            <FaMoneyBillWave className="text-white text-lg sm:text-xl" />
+      {/* HEADER */}
+      <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
+        <div className="flex items-center gap-3">
+          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-teal-500 to-teal-700 flex items-center justify-center shadow-lg shadow-teal-600/30">
+            <FaMoneyBillWave className="text-white text-lg" />
           </div>
-          <div className="min-w-0">
+          <div>
             <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight leading-tight">
               Budget Planner
             </h2>
-            <p className="text-slate-500 text-xs sm:text-sm mt-1 leading-snug">
-              Enter your starting capital in PKR and get a detailed allocation plan for your online business.
+            <p className="text-slate-500 text-xs sm:text-sm mt-0.5">
+              Get a smart, Pakistan-specific PKR allocation you can save and track.
             </p>
           </div>
         </div>
+        <Link
+          href="/budget/history"
+          className="inline-flex items-center gap-2 bg-white hover:bg-slate-50 border border-slate-200 hover:border-teal-300 text-slate-700 hover:text-teal-700 px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition"
+        >
+          <FaHistory size={11} /> My Budgets
+        </Link>
+      </div>
 
-        {/* Input row */}
+      {/* ROADMAP CONTEXT BANNER */}
+      {hasRoadmapCtx && (
+        <div className="bg-gradient-to-r from-teal-50 to-emerald-50 border border-teal-100 rounded-2xl p-4 mb-4 flex items-start gap-3">
+          <div className="w-10 h-10 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center shrink-0">
+            <FaRoad />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-[11px] font-bold uppercase tracking-wider text-teal-700">
+              From your roadmap
+            </p>
+            <p className="text-sm text-slate-700 font-semibold">
+              Planning budget for <span className="text-teal-700">{ctx.productType || 'your business'}</span>
+            </p>
+            <div className="flex flex-wrap gap-1.5 mt-2">
+              {ctx.city && <CtxChip icon={<FaMapMarkerAlt />} label={ctx.city} />}
+              {ctx.platform && <CtxChip icon={<FaStore />} label={ctx.platform} />}
+              {ctx.experience && <CtxChip icon={<FaUserGraduate />} label={ctx.experience.replace(/_/g, ' ')} />}
+            </div>
+          </div>
+          <Link
+            href={`/roadmap/${ctx.roadmapId}`}
+            className="text-xs font-semibold text-teal-700 hover:text-teal-800 inline-flex items-center gap-1 shrink-0"
+          >
+            Back to roadmap <FaArrowRight size={9} />
+          </Link>
+        </div>
+      )}
+
+      {/* INPUT CARD */}
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 sm:p-7 mb-6">
+        <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-2">
+          Starting capital (PKR)
+        </label>
         <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-3">
           <div className="relative flex-1">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-sm pointer-events-none">
-              PKR
-            </span>
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-sm pointer-events-none">PKR</span>
             <input
               type="text"
               inputMode="numeric"
               placeholder="0"
               value={budgetInput}
               onChange={handleInputChange}
-              onKeyDown={(e) => e.key === 'Enter' && fetchBudgetPlan()}
+              onKeyDown={(e) => e.key === 'Enter' && generate()}
               className="w-full pl-14 pr-4 py-3 rounded-xl border border-slate-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/40 outline-none transition font-semibold text-slate-900 text-base"
             />
-            {/* Formatted preview */}
             {budgetInput && (
               <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-slate-400 hidden sm:inline">
                 {formatPKR(budgetInput)}
@@ -126,15 +186,18 @@ export default function Budget() {
             )}
           </div>
           <button
-            onClick={() => fetchBudgetPlan()}
+            onClick={() => generate()}
             disabled={loading || !budgetInput.trim()}
             className="bg-teal-600 hover:bg-teal-700 active:bg-teal-800 text-white px-6 py-3 rounded-xl font-semibold shadow-md shadow-teal-600/20 transition flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            <FaSearchDollar /> {loading ? 'Generating…' : 'Generate Plan'}
+            {loading ? (
+              <><span className="w-4 h-4 border-2 border-white/60 border-t-white rounded-full animate-spin" /> Generating...</>
+            ) : (
+              <><FaSearchDollar size={13} /> Generate Plan</>
+            )}
           </button>
         </div>
 
-        {/* Live tier indicator */}
         {liveTier && (
           <div className={`mt-3 inline-flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full border ${liveTier.tone}`}>
             <FaCoins size={10} />
@@ -142,7 +205,6 @@ export default function Budget() {
           </div>
         )}
 
-        {/* Preset chips */}
         <div className="mt-4 flex flex-wrap gap-2 items-center">
           <span className="text-xs text-slate-500 flex items-center gap-1.5 mr-1">
             <FaLightbulb className="text-amber-500" /> Quick pick:
@@ -150,7 +212,7 @@ export default function Budget() {
           {PRESETS.map((preset) => (
             <button
               key={preset.amount}
-              onClick={() => fetchBudgetPlan(preset.amount)}
+              onClick={() => generate(preset.amount)}
               disabled={loading}
               className="text-xs bg-teal-50 hover:bg-teal-100 text-teal-700 px-3 py-1.5 rounded-full border border-teal-200 transition disabled:opacity-60 font-semibold"
             >
@@ -160,7 +222,7 @@ export default function Budget() {
         </div>
       </div>
 
-      {/* ═══ LOADING SKELETON ═══ */}
+      {/* LOADING */}
       {loading && (
         <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 sm:p-7">
           <div className="flex items-center gap-3 mb-5 pb-4 border-b border-slate-100">
@@ -174,17 +236,16 @@ export default function Budget() {
             <div key={i} className="space-y-2 mb-4 animate-pulse">
               <div className="h-3 w-full bg-slate-100 rounded" />
               <div className="h-3 w-4/5 bg-slate-100 rounded" />
-              <div className="h-3 w-3/5 bg-slate-100 rounded" />
             </div>
           ))}
           <p className="text-teal-600 text-sm font-semibold mt-4 flex items-center gap-2">
             <span className="w-4 h-4 border-2 border-teal-600 border-t-transparent rounded-full animate-spin" />
-            Calculating your budget breakdown…
+            Calculating your tailored budget breakdown...
           </p>
         </div>
       )}
 
-      {/* ═══ ERROR ═══ */}
+      {/* ERROR */}
       {error && !loading && (
         <div className="bg-red-50 border border-red-200 rounded-2xl p-5 flex items-start gap-3">
           <div className="w-9 h-9 rounded-lg bg-red-100 text-red-600 flex items-center justify-center shrink-0">
@@ -194,7 +255,7 @@ export default function Budget() {
             <p className="font-semibold text-red-800">Something went wrong</p>
             <p className="text-red-700 text-sm mt-0.5">{error}</p>
             <button
-              onClick={() => fetchBudgetPlan(currentBudget)}
+              onClick={() => generate()}
               className="mt-2 text-red-700 hover:text-red-900 text-sm font-semibold flex items-center gap-1.5"
             >
               <FaRedo size={11} /> Try again
@@ -203,40 +264,30 @@ export default function Budget() {
         </div>
       )}
 
-      {/* ═══ RESULT ═══ */}
-      {!loading && !error && plan && (
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 sm:p-7">
-          <div className="flex items-center gap-2.5 mb-5 pb-4 border-b border-slate-100">
-            <div className="w-9 h-9 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center">
-              <FaMoneyBillWave />
-            </div>
-            <h3 className="font-bold text-slate-900 text-sm sm:text-base truncate">
-              Budget Plan for{' '}
-              <span className="text-teal-700">PKR {formatPKR(currentBudget)}</span>
-            </h3>
-          </div>
-          <div className="prose prose-sm sm:prose-base max-w-none text-slate-700
-                          prose-headings:text-slate-900 prose-headings:font-bold
-                          prose-strong:text-slate-900
-                          prose-a:text-teal-600 prose-a:no-underline hover:prose-a:underline
-                          prose-li:my-1">
-            <ReactMarkdown>{plan}</ReactMarkdown>
-          </div>
-        </div>
-      )}
-
-      {/* ═══ EMPTY STATE ═══ */}
-      {!loading && !error && !plan && (
+      {/* EMPTY STATE */}
+      {!loading && !error && (
         <div className="bg-white rounded-2xl border border-dashed border-slate-200 p-8 sm:p-12 text-center">
           <div className="w-16 h-16 rounded-full bg-gradient-to-br from-teal-50 to-teal-100 flex items-center justify-center mx-auto mb-3">
             <FaMoneyBillWave className="text-teal-500 text-2xl" />
           </div>
           <p className="text-slate-800 font-semibold">Plan smart, start lean</p>
           <p className="text-slate-500 text-sm mt-1 max-w-sm mx-auto">
-            Enter an amount above or pick a preset to see a full allocation — stock, ads, packaging, delivery, and contingency.
+            Enter an amount above. We will save your budget so you can come back and track spending later.
           </p>
+          <Link href="/budget/history" className="inline-flex items-center gap-2 mt-4 text-teal-700 hover:text-teal-800 text-sm font-semibold transition">
+            View saved budgets <FaArrowRight size={10} />
+          </Link>
         </div>
       )}
     </section>
+  );
+}
+
+function CtxChip({ icon, label }) {
+  return (
+    <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-white text-teal-700 border border-teal-200">
+      <span className="text-teal-500 text-[10px]">{icon}</span>
+      {label}
+    </span>
   );
 }
