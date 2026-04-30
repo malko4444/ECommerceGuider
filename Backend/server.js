@@ -10,6 +10,7 @@ import connectDB from './config/db.js';
 import Prompt from './models/Prompt.js';
 import { protect } from './middleware/auth.js';
 import vendorRouter from './routes/vendor.js';
+import matchRouter from './routes/match.js';
 import { adminRouter } from './routes/adminRoutes.js';
 
 dotenv.config();
@@ -33,6 +34,7 @@ app.use((req, res, next) => {
 connectDB();
 app.use("/auth", authRoutes);
 app.use("/vendor", vendorRouter);
+app.use("/api", matchRouter);
 
 
 const tvly = tavily({ apiKey: process.env.TAVILY_KEY });
@@ -715,6 +717,7 @@ If the question contains offensive or harmful content, reply ONLY:
     res.status(500).json({ error: "Failed to get mentor response." });
   }
 });
+app.use("/admin", adminRouter);
 app.use("/admin", adminRouter);
 
 const PORT = process.env.PORT || 4000;

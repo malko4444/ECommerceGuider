@@ -6,10 +6,11 @@ import HeroSection from '../component/HeroSection';
 import {
   FaRoad, FaMoneyBillWave, FaSearchDollar, FaChartLine,
   FaStore, FaLayerGroup, FaListUl, FaChalkboardTeacher,
-  FaArrowRight, FaHandSparkles
+  FaArrowRight, FaHandSparkles, FaMagic
 } from 'react-icons/fa';
 
 const TOOLS = [
+  { title: 'AI Vendor Matchmaker', desc: 'Describe your need, get top matches', path: '/match', icon: <FaMagic />, tone: 'teal', featured: true },
   { title: 'Startup Roadmap',   desc: 'Phase-by-phase launch plan',        path: '/roadmap',           icon: <FaRoad />,            tone: 'teal' },
   { title: 'Budget Planner',    desc: 'Allocate your PKR smartly',         path: '/budget',            icon: <FaMoneyBillWave />,   tone: 'emerald' },
   { title: 'Trending Products', desc: 'See what\'s selling now',           path: '/trending-products', icon: <FaSearchDollar />,    tone: 'amber' },
